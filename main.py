@@ -1,9 +1,9 @@
 from scipy import ndimage
 import matplotlib.pyplot as plt
-from filter import *
-from segment_graph import *
+from pegbis.filter import *
+from pegbis.segment_graph import *
 import time
-
+import imageio
 
 # --------------------------------------------------------------------------------
 # Segment an image:
@@ -21,8 +21,8 @@ import time
 def segment(in_image, sigma, k, min_size):
     start_time = time.time()
     height, width, band = in_image.shape
-    print("Height:  " + str(height))
-    print("Width:   " + str(width))
+    #print("Height:  " + str(height))
+    #print("Width:   " + str(width))
     smooth_red_band = smooth(in_image[:, :, 0], sigma)
     smooth_green_band = smooth(in_image[:, :, 1], sigma)
     smooth_blue_band = smooth(in_image[:, :, 2], sigma)
@@ -79,11 +79,12 @@ def segment(in_image, sigma, k, min_size):
             output[y, x, :] = colors[comp, :]
 
     elapsed_time = time.time() - start_time
-    print(
-        "Execution time: " + str(int(elapsed_time / 60)) + " minute(s) and " + str(
-            int(elapsed_time % 60)) + " seconds")
+    # print(
+    #     "Execution time: " + str(int(elapsed_time / 60)) + " minute(s) and " + str(
+    #         int(elapsed_time % 60)) + " seconds")
 
     # displaying the result
+    output = output.astype(int)
     fig = plt.figure()
     a = fig.add_subplot(1, 2, 1)
     plt.imshow(in_image)
@@ -91,17 +92,21 @@ def segment(in_image, sigma, k, min_size):
     a = fig.add_subplot(1, 2, 2)
     plt.imshow(output)
     a.set_title('Segmented Image')
-    plt.show()
+    plt.savefig('./intermediate/superpixel.png')
+
+    return output
 
 
 if __name__ == "__main__":
     sigma = 0.5
-    k = 500
+    k = 300
     min = 50
-    input_path = "data/paris.jpg"
+    input_path = "data/bridge.jpg"
 
     # Loading the image
-    input_image = ndimage.imread(input_path, flatten=False, mode=None)
+    #input_image = ndimage.imread(input_path, flatten=False, mode=None)
+    
+    input_image = imageio.imread(input_path ) 
     print("Loading is done.")
     print("processing...")
     segment(input_image, sigma, k, min)
